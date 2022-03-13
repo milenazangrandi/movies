@@ -12,7 +12,6 @@ export default class Modal extends React.Component {
 		return (
 			<>
 			<div className='wrapper'>
-
 				<div className='modal'>
 					<div className='modal-content'>
 						<div className='modal-image'>
@@ -21,6 +20,10 @@ export default class Modal extends React.Component {
 						</div>
 						<div className='modal-description'>
 							<h2>{this.props.item.Title}</h2>
+							<a>{this.props.item.Genre}</a>
+							<p>
+								{this.props.item.Plot}
+							</p>
 						</div>
 						<div className='modal-close-button' onClick={this.closeModal}>
 							&times;

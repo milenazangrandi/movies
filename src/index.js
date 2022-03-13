@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './styles.scss';
+import './scss/styles.scss';
 import Main from './Main'
 
 ReactDOM.render(<Main />, document.getElementById('root'));

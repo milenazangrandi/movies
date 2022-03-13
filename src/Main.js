@@ -1,39 +1,87 @@
 import React from 'react';
-import './styles.scss';
-import SearchBox from './SearchBox';
-import ShoppingList from './ShoppingList';
-import Axios from 'axios';
+import _ from 'lodash';
+
+import ApiGet from './utils/http';
+import SearchBox from './components/SearchBox/SearchBox';
+import ShoppingList from './components/ShoppingList/ShoppingList';
+import FilterBox from './components/FilterBox/FilterBox';
 
 export default class Main extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			todos: [],
-			descript: []
+			filmes: [],
+			allGenres: [],
+			genreList: [],
+			allTypes: [],
+			typeList: [],
 		};
+
 		this.todoNameRef = React.createRef();
-		this.handleAddTodo = this.handleAddTodo.bind(this);
+		this.handleAddGenres();
 	}
 
-	handleAddTodo() {
-		const pesquisa = this.todoNameRef.current.value;
-		if (pesquisa === '') return;
+	//find all genres => query to genres table
+	async handleAddGenres() {
+		try {
+			const data = await ApiGet({ path: '/genres' });
 
+			this.setState({
+				allGenres: data.data,
+			});
+		} catch (e) {
+			console.log(e);
+			this.setState({
+				allGenres: [],
+			});
+		}
+	}
 
-		Axios.get(`http://localhost:3000/titles?title=${pesquisa}`)
-			.then((data) => {
-				this.setState({ todos: data.data });
-			})
-			.catch();
+	async handleAddTodo() {
+		try {
+			const pesquisa = this.todoNameRef.current.value;
+			if (pesquisa === '') return;
+
+			const data = await ApiGet({ path: `/titles`, params: { title: pesquisa } });
+
+			this.setState({
+				filmes: data.data,
+			});
+		} catch (e) {
+			console.log(e);
+		}
 	}
-	openModal() {
-		console.log('this', this);
+
+	updateStateGenre(newGenderList) {
+		console.log('newGenderList', newGenderList);
+		this.setState({ genreList: _.xor(this.state.genreList, [newGenderList]) });
+		console.log('lista de generos', this.state.genreList);
 	}
+
+	async handleGenre() {
+		try {
+			const data = await ApiGet({ path: `/titles`, params: { genreList: this.state.genreList } });
+			this.setState({
+				filmes: data.data,
+			});
+		} catch (e) {
+			console.log('handleGenre ', e);
+		}
+	}
+
 	render() {
 		return (
 			<>
-				<SearchBox handleAddTodo={this.handleAddTodo} todoNameRef={this.todoNameRef} />
-				<ShoppingList openModal={this.openModal} filmes={this.state.todos} />
+				<div className='filter'>
+					<FilterBox
+						updateStateGenre={this.updateStateGenre.bind(this)}
+						handleGenre={this.handleGenre.bind(this)}
+						allGenres={this.state.allGenres}
+						genreListMain={this.state.genreList}
+					/>
+				</div>
+				{/* <SearchBox handleAddTodo={this.handleAddTodo.bind(this)} todoNameRef={this.todoNameRef} /> */}
+				<ShoppingList filmes={this.state.filmes} />
 			</>
 		);
 	}

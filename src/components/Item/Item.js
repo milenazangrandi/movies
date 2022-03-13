@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Modal from './modal';
-import Axios from 'axios';
-const apiKey = '4759e14d';
+import Modal from '../Modal/modal';
+import OmdbapiGet from '../../service/Omdbapi';
 
 export default class Item extends React.Component {
 	constructor(props) {
@@ -12,16 +11,18 @@ export default class Item extends React.Component {
 		};
 	}
 	async openModal() {
-		await Axios.get(`https://www.omdbapi.com/?i=${this.props.item.tconst}&apikey=${apiKey}`)
-			.then((resp) => {
-				const filme = resp;
-				console.log('filme:', filme);
-				this.setState({ descript: filme.data });
+		try {
+			const resp = await OmdbapiGet(`/?i=${this.props.item.tconst}`);
 
-			})
-			.catch(console.log);
-			console.log('descript:', this.state.descript)
-		ReactDOM.render(<Modal item={this.state.descript} />, document.getElementById('popup'));
+			this.setState({ descript: resp.data });
+
+			console.log('descript:', this.state.descript);
+
+			ReactDOM.render(<Modal item={this.state.descript} />, document.getElementById('popup'));
+		
+		} catch (e) {
+			console.log(e);
+		}
 	}
 
 	render() {
